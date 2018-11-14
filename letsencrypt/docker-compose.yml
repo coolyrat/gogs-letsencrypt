@@ -28,8 +28,6 @@ services:
     volumes: 
       - '/var/run/docker.sock:/tmp/docker.sock:ro'
       - '${NGINX_TMPL_DIR}:/etc/docker-gen/templates/nginx.tmpl:ro'
-    volumes_from: 
-      - gateway
     networks: 
       - letsencrypt-network
     labels: 
@@ -44,8 +42,6 @@ services:
     volumes: 
       - '${CERTS_DIR}:/etc/nginx/certs:rw'
       - '/var/run/docker.sock:/var/run/docker.sock:ro'
-    volumes_from: 
-      - gateway
     networks: 
       - letsencrypt-network
     environment: 
