@@ -1,51 +1,34 @@
 version: '3.7'
 
 services: 
-  gateway: 
+  nginx-proxy: 
     restart: always
-    image: nginx:${NGINX_VERSION}
-    container_name: gateway
+    image: jwilder/nginx-proxy:${NGINX_PROXY_VERSION}
+    container_name: nginx-proxy
     ports: 
       - '80:80'
       - '443:443'
     volumes: 
-      - '/etc/nginx/conf.d'
-      - '/etc/nginx/vhost.d'
-      - '/usr/share/nginx/html'
-      - '${CERTS_DIR}:/etc/nginx/certs:ro'
+      - './nginx/vhost.d:/etc/nginx/vhost.d'
+      - './nginx/html:/usr/share/nginx/html'
+      - './nginx/certs:/etc/nginx/certs:ro'
     networks: 
       - letsencrypt-network
     labels: 
       - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
 
 
-  nginx-gen:
-    restart: always
-    depends_on: 
-      - gateway
-    image: jwilder/docker-gen:${DOCKER_GEN_VERSION}
-    container_name: nginx-gen
-    volumes: 
-      - '/var/run/docker.sock:/tmp/docker.sock:ro'
-      - '${NGINX_TMPL_DIR}:/etc/docker-gen/templates/nginx.tmpl:ro'
-    networks: 
-      - letsencrypt-network
-    labels: 
-      - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen'
-    entrypoint: /usr/local/bin/docker-gen -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
-
-
   letsencrypt-proxy:
     restart: always
     image: jrcs/letsencrypt-nginx-proxy-companion:${LETSENCRYPT_PROXY_VERSION}
     container_name: letsencrypt-proxy
+    depends_on: 
+      - nginx-proxy
     volumes: 
-      - '${CERTS_DIR}:/etc/nginx/certs:rw'
+      - './nginx/certs:/etc/nginx/certs:rw'
       - '/var/run/docker.sock:/var/run/docker.sock:ro'
     networks: 
       - letsencrypt-network
-    environment: 
-      - NGINX_DOCKER_GEN_CONTAINER=nginx-gen
   
     
 networks: 
