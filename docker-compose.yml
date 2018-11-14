@@ -5,9 +5,6 @@ services:
     gogs:
       restart: always
       image: gogs/gogs:${GOGS_VERSION}
-      ports: 
-        - '10022:22'
-        - '10080:3000'
       volumes: 
         - '${GOGS_DATA}:/data'
       networks: 
