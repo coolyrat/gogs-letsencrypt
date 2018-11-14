@@ -21,4 +21,4 @@ services:
 networks: 
   gogs-network:
     external: 
-      name: letsencrypt-network
+      name: webproxy
